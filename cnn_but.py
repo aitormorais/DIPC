@@ -82,34 +82,30 @@ def img_prepoces(ruta, tupla):
 
 
 
-def construir_modelo_fc(forma_entrada, func_acti, num_capas, filtro_inicial, n_clases, n_neuronas_fc, l2_reg=0.001):
+def construir_modelo_fc(forma_entrada, func_acti, num_capas, filtro_inicial, n_clases, n_neuronas_fc):
     """
     Función para construir una red neuronal convolucional (CNN) con Keras.
 
     Parámetros:
-    forma_entrada (tuple): Un tuple que define la forma de los datos de entrada (altura, ancho, canales).
-    func_acti (str): Una cadena que define la función de activación a utilizar en las capas convolucionales y densas. Ejemplos: 'relu', 'sigmoid', 'tanh'.
-    num_capas (int): Un entero que define el número de capas convolucionales a añadir a la red.
-    filtro_inicial (int): Un entero que define el número de filtros en la primera capa convolucional. Las capas convolucionales subsiguientes duplicarán el número de filtros.
-    n_clases (int): Un entero que define el número de clases objetivo para la clasificación.
-    n_neuronas_fc (int): Un entero que define el número de neuronas en la capa totalmente conectada (capa densa).
-    l2_reg (float): Un número flotante que define la cantidad de regularización L2 aplicada a las capas convolucionales y densas.
+    - forma_entrada (tuple): Un tuple que define la forma de los datos de entrada (altura, ancho, canales).
+    - func_acti (str): Una cadena que define la función de activación a utilizar en las capas convolucionales y densas. Ejemplos: 'relu', 'sigmoid', 'tanh'.
+    - num_capas (int): Un entero que define el número de capas convolucionales a añadir a la red.
+    - filtro_inicial (int): Un entero que define el número de filtros en la primera capa convolucional. Las capas convolucionales subsiguientes duplicarán el número de filtros.
+    - n_clases (int): Un entero que define el número de clases objetivo para la clasificación.
+    - n_neuronas_fc (int): Un entero que define el número de neuronas en la capa totalmente conectada (capa densa).
 
     Devoluciones:
-    model (keras.Model): El modelo de la red neuronal convolucional.
+    - model (keras.Model): El modelo de la red neuronal convolucional.
     """
     model = Sequential()
-    model.add(Conv2D(filtro_inicial, (3, 3), padding='same', kernel_regularizer=l2(l2_reg), input_shape=forma_entrada))
-    model.add(BatchNormalization())
-    model.add(Activation(func_acti))
+    model.add(Conv2D(filtro_inicial, (3, 3), activation=func_acti, input_shape=forma_entrada))
     model.add(MaxPooling2D((2, 2)))
     for i in range(1, num_capas):
-        model.add(Conv2D(filtro_inicial*(2**i), (3, 3), padding='same', kernel_regularizer=l2(l2_reg)))
-        model.add(BatchNormalization())
-        model.add(Activation(func_acti))
+        model.add(Conv2D(filtro_inicial*(2**i), (3, 3), activation=func_acti))
         model.add(MaxPooling2D((2, 2)))
-    model.add(Flatten())
-    model.add(Dense(n_neuronas_fc, activation=func_acti, kernel_regularizer=l2(l2_reg)))
+    #Añadir capas densas
+    model.add(Flatten())#importante esta capa ya que convierte 2d a 1d para capas densas
+    model.add(Dense(n_neuronas_fc, activation=func_acti))
     model.add(Dropout(0.5))
     model.add(Dense(n_clases, activation='softmax'))
 
